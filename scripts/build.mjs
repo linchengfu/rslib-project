@@ -30,7 +30,7 @@ async function build() {
   const filesAfter = await fs.readdir(componentDir);
   const exports = filesAfter
     .filter(file => file.endsWith('.tsx'))
-    .map(file => `export * from './${path.basename(file, '.tsx')}';`)
+    .map(file => `export {default as ${path.basename(file, '.tsx')}} from './${path.basename(file, '.tsx')}';`)
     .join('\n');
   await fs.writeFile(path.join(componentDir, 'index.ts'), exports);
 }

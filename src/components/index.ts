@@ -1,1 +1,1 @@
-export * from './zhifubao';
+export {default as zhifubao} from './zhifubao';
