@@ -21,7 +21,9 @@
     "format": "biome format --write",
     "test": "vitest run",
     "build:svgs": "node scripts/build.mjs",
-    "clean": "rimraf src/components"
+    "clean": "rimraf src/components",
+    "dev:example": "vite --config examples/vite.config.ts",
+    "sync:figma": "node scripts/sync-figma.mjs"
   },
   "devDependencies": {
     "@biomejs/biome": "2.0.0",
@@ -29,9 +31,15 @@
     "@svgr/core": "^8.1.0",
     "@types/fs-extra": "^11.0.4",
     "@types/node": "^22.16.0",
+    "@types/react-dom": "^18.3.0",
+    "@vitejs/plugin-react": "^4.3.1",
+    "axios": "^1.7.2",
+    "dotenv": "^16.4.5",
     "fs-extra": "^11.3.0",
+    "react-dom": "^19.1.0",
     "rimraf": "^6.0.1",
     "typescript": "^5.8.3",
+    "vite": "^5.3.5",
     "vitest": "^3.2.4"
   },
   "private": false,
