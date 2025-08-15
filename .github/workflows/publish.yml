@@ -1,32 +1,22 @@
 name: Sync Figma & Publish
 
 on:
-  # 支持手动触发
   workflow_dispatch:
     inputs:
       sync_figma:
-        description: '是否同步Figma图标'
-        required: true
-        default: true
         type: boolean
+        default: true
       publish_npm:
-        description: '是否发布到NPM'
-        required: true
-        default: true
         type: boolean
+        default: true
       deploy_pages:
-        description: '是否部署到GitHub Pages'
-        required: true
-        default: true
         type: boolean
-  # 也支持推送到main分支时触发
+        default: true
   push:
-    branches:
-      - main
+    branches: [ main ]
 
-# 设置GitHub Pages权限
 permissions:
-  contents: read
+  contents: write
   pages: write
   id-token: write
 
@@ -35,74 +25,62 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/checkout@v4
 
-      - name: Install pnpm
-        uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@v4
         with:
-          version: 10
+          version: 9
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
-          node-version: '22'
-          cache: 'pnpm'
-          registry-url: 'https://registry.npmjs.org/'
+          node-version: 20
+          cache: pnpm
+          registry-url: https://registry.npmjs.org/
 
-      - name: Install dependencies
-        run: pnpm install
+      - run: pnpm install
 
       - name: Sync Figma Icons
-        if: ${{ github.event.inputs.sync_figma != 'false' }}
+        if: ${{ github.event.inputs.sync_figma }}
         run: pnpm run sync:figma
         env:
           FIGMA_TOKEN: ${{ secrets.FIGMA_TOKEN }}
 
-      - name: Build
-        run: pnpm run build
+      - name: Commit updated icons
+        if: ${{ github.event.inputs.sync_figma }}
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add src/svgs/ src/components/
+          git commit -m "chore: sync icons from Figma [skip ci]" || echo "No changes"
+          git push
+
+      - run: pnpm run build
 
       - name: Build Example for GitHub Pages
-        if: ${{ github.event.inputs.deploy_pages != 'false' }}
+        if: ${{ github.event.inputs.deploy_pages }}
         run: pnpm run build:example
         env:
           NODE_ENV: production
 
       - name: Setup Pages
-        if: ${{ github.event.inputs.deploy_pages != 'false' }}
+        if: ${{ github.event.inputs.deploy_pages }}
         uses: actions/configure-pages@v4
 
       - name: Upload Pages artifact
-        if: ${{ github.event.inputs.deploy_pages != 'false' }}
+        if: ${{ github.event.inputs.deploy_pages }}
         uses: actions/upload-pages-artifact@v4
         with:
           path: examples/dist
 
       - name: Deploy to GitHub Pages
-        if: ${{ github.event.inputs.deploy_pages != 'false' }}
+        if: ${{ github.event.inputs.deploy_pages }}
         id: deployment
         uses: actions/deploy-pages@v4
 
-      - name: Commit updated icons
-        if: ${{ github.event.inputs.sync_figma != 'false' }}
-        run: |
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
-          git add src/svgs/ src/components/
-          if git diff --staged --quiet; then
-            echo "No changes to commit"
-          else
-            git commit -m "chore: sync icons from Figma [skip ci]"
-            git push
-          fi
-
       - name: Publish to npm
-        if: ${{ github.event.inputs.publish_npm != 'false' }}
+        if: ${{ github.event.inputs.publish_npm }}
         run: pnpm publish --no-git-checks
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
