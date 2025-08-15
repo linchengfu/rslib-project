@@ -50,23 +50,37 @@ jobs:
         env:
           FIGMA_TOKEN: ${{ secrets.FIGMA_TOKEN }}
 
-      - name: Commit updated icons
+      - name: Check for icon changes
         if: ${{ github.event.inputs.sync_figma }}
+        id: check_changes
+        run: |
+          git add src/svgs/ src/components/ || true
+          if git diff --staged --quiet; then
+            echo "No changes detected"
+            echo "has_changes=false" >> $GITHUB_OUTPUT
+          else
+            echo "Changes detected"
+            echo "has_changes=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Commit and push updated icons
+        if: ${{ github.event.inputs.sync_figma && steps.check_changes.outputs.has_changes == 'true' }}
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
 
+          # 确保文件被暂存（因为可能在步骤间丢失）
+          git add src/svgs/ src/components/
+
           # 先同步远程（防止推送冲突）
           git pull --rebase origin master
 
-          # 再检查是否有 icon 更新
+          # 重新暂存文件（rebase后可能需要重新add）
           git add src/svgs/ src/components/
-          if git diff --staged --quiet; then
-            echo "No changes to commit"
-          else
-            git commit -m "chore: sync icons from Figma [skip ci]"
-            git push origin master
-          fi
+
+          # 提交更改
+          git commit -m "chore: sync icons from Figma [skip ci]"
+          git push origin master
 
       - run: pnpm run build
 
