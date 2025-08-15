@@ -2,6 +2,16 @@ import axios from 'axios';
 import { config } from 'dotenv';
 import fsExtra from 'fs-extra';
 import { join } from 'path';
+import { existsSync, readdirSync, unlinkSync } from 'fs';
+
+function toComponentName(name) {
+  return name
+    .replace(/[^a-zA-Z0-9]+/g, ' ') // 非字母数字变空格
+    .trim()
+    .split(/\s+/)                   // 按空格分割
+    .map(w => w.charAt(0).toUpperCase() + w.slice(1))
+    .join('');                      // 拼成驼峰
+}
 
 const { writeFile, ensureDir } = fsExtra;
 
@@ -12,6 +22,23 @@ const FIGMA_TOKEN = 'figd_MD5JsFt4JJcYVZ6uBM16t8c2YP-ONVCyfmcpp5XU';
 const FIGMA_FILE_ID = 'rJdzdR55Y5klSQ07yoUvLK'; // 硬编码的文件 ID
 const FRAME_NODE_ID = '2:2'; // 硬编码的 Frame 节点 ID
 const OUTPUT_DIR = join(process.cwd(), 'src/svgs');
+
+// 清理svgs目录中的文件
+function cleanSvgsDirectory() {
+  if (existsSync(OUTPUT_DIR)) {
+    const files = readdirSync(OUTPUT_DIR);
+    for (const file of files) {
+      if (file.endsWith('.svg')) {
+        const filePath = join(OUTPUT_DIR, file);
+        unlinkSync(filePath);
+        console.log(`Deleted: ${file}`);
+      }
+    }
+    console.log(`Cleaned ${files.filter(f => f.endsWith('.svg')).length} SVG files from ${OUTPUT_DIR}`);
+  } else {
+    console.log(`SVGs directory ${OUTPUT_DIR} does not exist, will be created.`);
+  }
+}
 
 if (!FIGMA_TOKEN) {
   console.error('Missing FIGMA_TOKEN in .env file');
@@ -62,6 +89,10 @@ async function syncFigma() {
   console.log("🚀 ~ syncFigma ~ fileId:", FIGMA_FILE_ID);
   console.log("🚀 ~ syncFigma ~ frameNodeId:", FRAME_NODE_ID);
 
+  // 先清理svgs目录
+  console.log('Cleaning existing SVG files...');
+  cleanSvgsDirectory();
+
   console.log(`Fetching Frame node ${FRAME_NODE_ID} and its children...`);
 
   // 获取指定 Frame 节点的详细信息
@@ -107,7 +138,7 @@ async function syncFigma() {
       // 获取节点名称
       const nodeInfo = childNodesData.nodes[nodeId]?.document;
       const nodeName = nodeInfo?.name || nodeId;
-      const fileName = nodeName.replace(/[\\/:"*?<>|]/g, '-'); // 清理文件名中的无效字符
+      const fileName = toComponentName(nodeName); // 清理文件名中的无效字符
       const filePath = join(OUTPUT_DIR, `${fileName}.svg`);
 
       await writeFile(filePath, svgContent.data);
