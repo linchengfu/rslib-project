@@ -69,8 +69,8 @@ jobs:
         uses: actions/configure-pages@v4
 
       - name: Upload Pages artifact
-        if: ${{ github.event.inputs.deploy_pages }}
-        uses: actions/upload-pages-artifact@v4
+        if: ${{ github.event.inputs.deploy_pages != 'false' }}
+        uses: actions/upload-pages-artifact@v3
         with:
           path: examples/dist
 
