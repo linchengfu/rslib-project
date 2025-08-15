@@ -8,7 +8,7 @@ const { writeFile, ensureDir } = fsExtra;
 config();
 
 // const FIGMA_TOKEN = process.env.FIGMA_TOKEN;
-const FIGMA_TOKEN = 'figd_eUbpqpBfseT1S8e5VVcjLI4f5rv4r6ECDdwF8ZaP';
+const FIGMA_TOKEN = 'figd_MD5JsFt4JJcYVZ6uBM16t8c2YP-ONVCyfmcpp5XU';
 const FIGMA_FILE_ID = 'rJdzdR55Y5klSQ07yoUvLK'; // 硬编码的文件 ID
 const FRAME_NODE_ID = '2:2'; // 硬编码的 Frame 节点 ID
 const OUTPUT_DIR = join(process.cwd(), 'src/svgs');
