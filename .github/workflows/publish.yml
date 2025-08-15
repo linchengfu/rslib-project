@@ -110,14 +110,23 @@ jobs:
       - name: Publish to npm
         if: ${{ github.event.inputs.publish_npm }}
         run: |
-          # 设置npm配置
-          npm config set //registry.npmjs.org/:_authToken $NODE_AUTH_TOKEN
-          npm config set registry https://registry.npmjs.org/
+          # 检查token是否存在
+          if [ -z "$NPM_TOKEN" ]; then
+            echo "❌ NPM_TOKEN secret is not set!"
+            exit 1
+          fi
           
-          # 验证配置
+          # 设置npm认证
+          npm config set //registry.npmjs.org/:_authToken $NPM_TOKEN
+          npm config set registry https://registry.npmjs.org/
+          npm config set access public
+          
+          # 验证认证
+          echo "Testing NPM authentication..."
           npm whoami
           
-          # 使用npm发布而不是pnpm
-          npm publish --access public
+          # 发布包
+          echo "Publishing package..."
+          npm publish
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
