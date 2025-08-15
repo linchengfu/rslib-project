@@ -23,6 +23,7 @@
     "build:svgs": "node scripts/build.mjs",
     "clean": "rimraf src/components",
     "dev:example": "vite --config examples/vite.config.ts",
+    "build:example": "vite build --config examples/vite.config.ts",
     "sync:figma": "node scripts/sync-figma.mjs"
   },
   "devDependencies": {
