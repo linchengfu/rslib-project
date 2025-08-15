@@ -115,16 +115,16 @@ jobs:
             echo "❌ NPM_TOKEN secret is not set!"
             exit 1
           fi
-          
+
           # 设置npm认证
           npm config set //registry.npmjs.org/:_authToken $NPM_TOKEN
           npm config set registry https://registry.npmjs.org/
           npm config set access public
-          
+
           # 验证认证
           echo "Testing NPM authentication..."
           npm whoami
-          
+
           # 发布包
           echo "Publishing package..."
           npm publish

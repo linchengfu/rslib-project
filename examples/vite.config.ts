@@ -7,4 +7,8 @@ export default defineConfig({
   server: {
     open: true,
   },
+  build: {
+    outDir: 'dist', // 输出到 examples/dist 目录
+    emptyOutDir: true, // 构建前清空输出目录
+  },
 });
