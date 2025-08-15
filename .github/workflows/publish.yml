@@ -109,6 +109,8 @@ jobs:
 
       - name: Publish to npm
         if: ${{ github.event.inputs.publish_npm }}
-        run: pnpm publish --no-git-checks
+        run: |
+          echo "//registry.npmjs.org/:_authToken=$NODE_AUTH_TOKEN" > ~/.npmrc
+          pnpm publish --no-git-checks
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
