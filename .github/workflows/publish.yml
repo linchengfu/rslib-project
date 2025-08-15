@@ -28,6 +28,9 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0  # 拉取完整提交历史
 
       - uses: pnpm/action-setup@v4
         with:
@@ -52,9 +55,18 @@ jobs:
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
+
+          # 先同步远程（防止推送冲突）
+          git pull --rebase origin master
+
+          # 再检查是否有 icon 更新
           git add src/svgs/ src/components/
-          git commit -m "chore: sync icons from Figma [skip ci]" || echo "No changes"
-          git push
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "chore: sync icons from Figma [skip ci]"
+            git push origin master
+          fi
 
       - run: pnpm run build
 
