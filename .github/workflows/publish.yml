@@ -110,7 +110,14 @@ jobs:
       - name: Publish to npm
         if: ${{ github.event.inputs.publish_npm }}
         run: |
-          echo "//registry.npmjs.org/:_authToken=$NODE_AUTH_TOKEN" > ~/.npmrc
-          pnpm publish --no-git-checks
+          # 设置npm配置
+          npm config set //registry.npmjs.org/:_authToken $NODE_AUTH_TOKEN
+          npm config set registry https://registry.npmjs.org/
+          
+          # 验证配置
+          npm whoami
+          
+          # 使用npm发布而不是pnpm
+          npm publish --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
