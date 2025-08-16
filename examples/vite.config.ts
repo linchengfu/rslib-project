@@ -14,7 +14,7 @@ export default defineConfig({
     open: true,
   },
   build: {
-    outDir: process.env.VERCEL ? path.resolve(__dirname, '../dist') : 'dist', // Vercel 输出到项目根目录的 dist，其他输出到 examples/dist
+    outDir: 'dist', // 输出到 examples/dist 目录
     emptyOutDir: true, // 构建前清空输出目录
   },
 });
