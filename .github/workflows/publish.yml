@@ -72,9 +72,15 @@ jobs:
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
 
-          # 先同步远程（在暂存文件之前）
+          # 先暂存当前更改（避免 rebase 冲突）
+          git stash push -m "temp stash for rebase"
+
+          # 同步远程分支
           git fetch origin master
           git rebase origin/master
+
+          # 恢复暂存的更改
+          git stash pop
 
           # 获取当前版本号
           CURRENT_VERSION=$(node -p "require('./package.json').version")
