@@ -3,7 +3,11 @@ import react from '@vitejs/plugin-react';
 
 export default defineConfig({
   root: __dirname, // 指定 examples 目录为根目录
-  base: process.env.NODE_ENV === 'production' ? '/rslib-project/' : '/',
+  base: process.env.VERCEL
+    ? '/'
+    : process.env.NODE_ENV === 'production'
+      ? '/rslib-project/'
+      : '/',
   plugins: [react()],
   server: {
     open: true,

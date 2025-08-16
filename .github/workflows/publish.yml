@@ -12,6 +12,8 @@ on:
       deploy_pages:
         type: boolean
         default: true
+  repository_dispatch:
+    types: [sync-figma]
   push:
     branches: [main]
 
@@ -138,6 +140,13 @@ jobs:
         if: ${{ github.event.inputs.deploy_pages }}
         id: deployment
         uses: actions/deploy-pages@v4
+
+      - name: Trigger Vercel Deployment
+        if: ${{ github.event.inputs.deploy_pages }}
+        run: |
+          echo "✅ GitHub Pages deployed successfully"
+          echo "🚀 Vercel will auto-deploy from the pushed changes"
+          echo "📊 Visit your Vercel dashboard to see deployment status"
 
       - name: Publish to npm
         if: ${{ github.event.inputs.publish_npm }}
