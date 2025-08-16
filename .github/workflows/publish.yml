@@ -72,14 +72,9 @@ jobs:
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
 
-          # 确保文件被暂存（因为可能在步骤间丢失）
-          git add src/svgs/ src/components/
-
-          # 先同步远程（防止推送冲突）
-          git pull --rebase origin master
-
-          # 重新暂存文件（rebase后可能需要重新add）
-          git add src/svgs/ src/components/
+          # 先同步远程（在暂存文件之前）
+          git fetch origin master
+          git rebase origin/master
 
           # 获取当前版本号
           CURRENT_VERSION=$(node -p "require('./package.json').version")
@@ -102,8 +97,8 @@ jobs:
             fs.writeFileSync('./package.json', JSON.stringify(pkg, null, 2) + '\n');
           "
 
-          # 暂存 package.json
-          git add package.json
+          # 暂存所有更改的文件
+          git add src/svgs/ src/components/ package.json
 
           # 提交更改
           git commit -m "chore: sync icons from Figma and bump version to v$NEW_VERSION [skip ci]"
