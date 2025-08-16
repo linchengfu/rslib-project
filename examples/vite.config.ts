@@ -13,7 +13,7 @@ export default defineConfig({
     open: true,
   },
   build: {
-    outDir: 'dist', // 输出到 examples/dist 目录
+    outDir: process.env.VERCEL ? '../dist' : 'dist', // Vercel 输出到根目录的 dist，其他输出到 examples/dist
     emptyOutDir: true, // 构建前清空输出目录
   },
 });

@@ -1,6 +1,6 @@
 {
   "buildCommand": "pnpm run build:example",
-  "outputDirectory": "examples/dist",
+  "outputDirectory": "dist",
   "installCommand": "pnpm install",
   "framework": null,
   "rewrites": [
@@ -9,10 +9,7 @@
       "destination": "/index.html"
     }
   ],
-  "crons": [
-    {
-      "path": "/api/sync-figma",
-      "schedule": "0 2 * * *"
-    }
-  ]
+  "env": {
+    "VERCEL": "1"
+  }
 }
