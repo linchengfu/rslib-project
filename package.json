@@ -15,12 +15,12 @@
     "dist"
   ],
   "scripts": {
-    "build": "pnpm run clean && rslib build",
+    "build": "rslib build",
     "check": "biome check --write",
     "dev": "rslib build --watch",
     "format": "biome format --write",
     "test": "vitest run",
-    "build:svgs": "node scripts/build.mjs",
+    "build:svgs": "pnpm run clean && node scripts/build.mjs",
     "clean": "rimraf src/components",
     "dev:example": "vite --config examples/vite.config.ts",
     "build:example": "vite build --config examples/vite.config.ts",
