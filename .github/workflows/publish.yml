@@ -81,9 +81,37 @@ jobs:
           # 重新暂存文件（rebase后可能需要重新add）
           git add src/svgs/ src/components/
 
+          # 获取当前版本号
+          CURRENT_VERSION=$(node -p "require('./package.json').version")
+          echo "Current version: $CURRENT_VERSION"
+
+          # 自动递增 patch 版本号
+          NEW_VERSION=$(node -p "
+            const version = require('./package.json').version;
+            const parts = version.split('.');
+            parts[2] = (parseInt(parts[2]) + 1).toString();
+            parts.join('.');
+          ")
+          echo "New version: $NEW_VERSION"
+
+          # 更新 package.json 中的版本号
+          node -e "
+            const fs = require('fs');
+            const pkg = require('./package.json');
+            pkg.version = '$NEW_VERSION';
+            fs.writeFileSync('./package.json', JSON.stringify(pkg, null, 2) + '\n');
+          "
+
+          # 暂存 package.json
+          git add package.json
+
           # 提交更改
-          git commit -m "chore: sync icons from Figma [skip ci]"
+          git commit -m "chore: sync icons from Figma and bump version to v$NEW_VERSION [skip ci]"
+
+          # 创建并推送 tag
+          git tag "v$NEW_VERSION"
           git push origin master
+          git push origin "v$NEW_VERSION"
 
       - run: pnpm run build
 
